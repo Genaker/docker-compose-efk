@@ -3,12 +3,12 @@
 
 ELK
 =======================
-- ElasticSearch : Indexer and Searcher (latest official image)
+- ElasticSearch(es0001.elk0001) : Indexer and Searcher (latest official image)
     * ./elasticsearch/config/elasticsearch.yml
     * data: ./elasticsearch/data
-- LogStash : Collector (latest official image)
+- LogStash(ls0001.elk0001) : Collector (latest official image)
     * ./logstash/config/logstash.conf
-- Kibana : Viewer (lastest official image)
+- Kibana(kb0001.elk0001) : Viewer (lastest official image)
     * ./kibana/config/kibana.yml
 
 Quick Usage
