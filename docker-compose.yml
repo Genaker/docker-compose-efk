@@ -1,0 +1,62 @@
+#!/usr/bin/env docker-compose
+
+#docker-compose.yml: https://docs.docker.com/compose/compose-file/
+
+es0001.elk0001: #全文検索エンジン ElasticSearch
+    image: elasticsearch:latest # DockerHubの公式を信じる
+    env_file: ./common_env
+    hostname: es0001.elk0001
+    #cpu_shares: 50
+    #mem_limit: 2000000000 #2G default:1G
+    labels: 
+        - "local.elk0001.es0001.image.url=https://hub.docker.com/_/elasticsearch/"
+    volumes:
+        - ./elasticsearch/config:/usr/share/elasticsearch/config #設定ファイル
+        - ./elasticsearch/data/:/usr/share/elasticsearch/data #Indexファイルは保存可能に。ここをふっ飛ばせばデータリセットできる。
+    expose:
+        - "9200" #RESTのポート
+        - "9300" #クラスタ管理ポート（使わないけど）
+#    ports:
+#        - "9200:9200" #RESTのポート
+#        - "9300:9300" #クラスタ管理ポート（使わないけど）
+#    dns:
+#        - 
+#        - 
+
+ls0001.elk0001: #ログコレクタ LogStash
+    image: logstash:latest # DockerHubの公式を信じる
+    env_file: ./common_env
+    hostname: ls0001.elk0001
+    #cpu_shares: 50
+    #mem_limit: 2000000000 #2G default:1G
+    labels: 
+        - "local.elk0001.ls0001.image=https://hub.docker.com/_/logstash/"
+    command: logstash -f /etc/logstash/conf.d/logstash.conf #コマンドで自分のConfigを指定
+    volumes:
+        - ./logstash/config:/etc/logstash/conf.d #設定ファイル
+#    ports: 
+#        - "5000:5000" #ログを受けるポート
+    links:
+        - es0001.elk0001:es0001.elk0001 #/etc/hostsにESを追記。output先にESのIPが多分必要
+#    dns:
+#        - 
+#        - 
+
+kb0001.elk0001: #ビジュアライズ Kibana
+    image: kibana:latest # DockerHubの公式を信じる
+    env_file: ./common_env
+    hostname: kb0001.elk0001
+    #cpu_shares: 50
+    #mem_limit: 2000000000 #2G default:1G
+    labels: 
+        - "local.elk0001.kb0001.image=https://hub.docker.com/_/kibana/"
+    volumes:
+        - ./kibana/config:/opt/kibana/config #設定ファイル
+    ports:
+        - "5601:5601" #kibanaのWebインターフェースのポート
+    links:
+        - es0001.elk0001:es0001.elk0001 #/etc/hostsにESを追記。input元にESのIPが多分必要
+        - es0001.elk0001:elasticsearch #/etc/hostsにESを追記。input元にESのIPが多分必要
+#    dns:
+#        - 
+#        - 
