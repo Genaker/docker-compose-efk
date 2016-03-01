@@ -13,28 +13,22 @@ es0001.efk0001: #全文検索エンジン ElasticSearch
     volumes:
         - ./elasticsearch/config:/usr/share/elasticsearch/config #設定ファイル
         - ./elasticsearch/data/:/usr/share/elasticsearch/data #Indexファイルは保存可能に。ここをふっ飛ばせばデータリセットできる。
-    expose:
-        - "9200" #RESTのポート
-        - "9300" #クラスタ管理ポート（使わないけど）
-#    ports:
-#        - "9200:9200" #RESTのポート
-#        - "9300:9300" #クラスタ管理ポート（使わないけど）
+    ports:
+        - "9200:9200" #RESTのポート
+        - "9300:9300" #クラスタ管理ポート（使わないけど）
 #    dns:
 #        - 
 #        - 
 
 fl0001.efk0001: #ログコレクタ Fluentd
-    image: fluent/fluentd # DockerHubの公式を信じる
+    #image: fluent/fluentd # DockerHubの公式を信じる
+    build: ./fluentd
     env_file: ./common_env
     hostname: fl0001.efk0001
     #cpu_shares: 50
     #mem_limit: 2000000000 #2G default:1G
     labels: 
         - "local.efk0001.fl0001.image=https://hub.docker.com/r/fluent/fluentd/"
-    command: fluentd -c /data/fluentd/config/fluent.conf #コマンドで自分のConfigを指定
-    volumes:
-        - ./fluentd/config:/data/fluentd/config
-        - ./fluentd/log:/data/fluentd/log
     ports: 
         - "24224:24224" #ログを受けるポート
     links:
